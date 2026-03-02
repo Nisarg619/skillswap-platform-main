@@ -7,9 +7,25 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime
 import secrets
 import string
+from authlib.integrations.flask_client import OAuth
+from flask import redirect, url_for
+from flask import session
 
 app = Flask(__name__, static_folder='html_templates')
+app.secret_key = os.environ.get("SECRET_KEY", "dev_secret")
 CORS(app) # Enable CORS for all routes
+
+oauth = OAuth(app)
+
+google = oauth.register(
+    name='google',
+    client_id=os.environ.get("GOOGLE_CLIENT_ID"),
+    client_secret=os.environ.get("GOOGLE_CLIENT_SECRET"),
+    server_metadata_url='https://accounts.google.com/.well-known/openid-configuration',
+    client_kwargs={
+        'scope': 'openid email profile'
+    }
+)
 
 DATABASE = 'skill_swap.db'
 UPLOAD_FOLDER = 'uploads' # Folder to store uploaded profile pictures
@@ -808,6 +824,35 @@ def mark_notifications_as_read(user_id):
     finally:
         conn.close()
 
+@app.route('/login/google')
+def login_google():
+    redirect_uri = url_for('google_callback', _external=True)
+    return google.authorize_redirect(redirect_uri)
+
+@app.route('/google/callback')
+def google_callback():
+    token = google.authorize_access_token()
+    user_info = token['userinfo']
+
+    email = user_info['email']
+    name = user_info['name']
+
+    conn = get_db_connection()
+    cursor = conn.cursor()
+
+    cursor.execute("SELECT * FROM users WHERE name = ?", (email,))
+    user = cursor.fetchone()
+
+    if not user:
+        user_id = str(uuid.uuid4())
+        cursor.execute(
+            "INSERT INTO users (id, name, password_hash) VALUES (?, ?, ?)",
+            (user_id, email, generate_password_hash("google_login"))
+        )
+        conn.commit()
+
+    conn.close()
+    return redirect('/')
 
 if __name__ == '__main__':
     # This will re-initialize the DB every time the script is run directly.
