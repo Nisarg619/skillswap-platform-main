@@ -1,19 +1,26 @@
 import os
-from flask import Flask, request, jsonify, send_from_directory
+from flask import Flask, request, jsonify, send_from_directory, session
 from flask_cors import CORS
 import sqlite3
 import uuid
 from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime
-import secrets
-import string
 from authlib.integrations.flask_client import OAuth
 from flask import redirect, url_for
-from flask import session
 
 app = Flask(__name__, static_folder='html_templates')
-app.secret_key = os.environ.get("SECRET_KEY", "dev_secret")
-CORS(app) # Enable CORS for all routes
+
+# Session Configuration for Production
+app.secret_key = os.environ.get("SECRET_KEY", "dev-secret-key-change-in-production")
+app.config.update(
+    SESSION_COOKIE_SECURE=True,        # Only send cookies over HTTPS
+    SESSION_COOKIE_HTTPONLY=True,      # Prevent JavaScript access
+    SESSION_COOKIE_SAMESITE="Lax",     # Allow top-level navigation
+    PERMANENT_SESSION_LIFETIME=86400   # 24 hours
+)
+
+# Enable CORS with credentials support
+CORS(app, supports_credentials=True, origins=["*"])
 
 oauth = OAuth(app)
 
@@ -201,7 +208,7 @@ def signup():
         cursor.execute("SELECT * FROM users WHERE id = ?", (user_id,))
         new_user_profile = cursor.fetchone()
         
-        # Prepare user profile for frontend, converting comma-separated strings back to lists
+        # Prepare user profile for frontend
         user_profile_dict = dict(new_user_profile)
         user_profile_dict['skills_offered'] = user_profile_dict['skills_offered'].split(',') if user_profile_dict['skills_offered'] else []
         user_profile_dict['skills_wanted'] = user_profile_dict['skills_wanted'].split(',') if user_profile_dict['skills_wanted'] else []
@@ -210,6 +217,10 @@ def signup():
         user_profile_dict['is_admin'] = bool(user_profile_dict['is_admin'])
         user_profile_dict['is_banned'] = bool(user_profile_dict['is_banned'])
 
+        # Store user in session
+        session['user_id'] = user_id
+        session['user_name'] = name
+        session.permanent = True
 
         return jsonify({
             "message": "User registered successfully",
@@ -240,7 +251,7 @@ def login():
         user = cursor.fetchone()
 
         if user and check_password_hash(user['password_hash'], password):
-            # Prepare user profile for frontend, converting comma-separated strings back to lists
+            # Prepare user profile for frontend
             user_profile_dict = dict(user)
             user_profile_dict['skills_offered'] = user_profile_dict['skills_offered'].split(',') if user_profile_dict['skills_offered'] else []
             user_profile_dict['skills_wanted'] = user_profile_dict['skills_wanted'].split(',') if user_profile_dict['skills_wanted'] else []
@@ -248,6 +259,11 @@ def login():
             user_profile_dict['is_public'] = bool(user_profile_dict['is_public'])
             user_profile_dict['is_admin'] = bool(user_profile_dict['is_admin'])
             user_profile_dict['is_banned'] = bool(user_profile_dict['is_banned'])
+
+            # Store user in session
+            session['user_id'] = user['id']
+            session['user_name'] = name
+            session.permanent = True
 
             return jsonify({
                 "message": "Login successful",
@@ -831,28 +847,98 @@ def login_google():
 
 @app.route('/google/callback')
 def google_callback():
-    token = google.authorize_access_token()
-    user_info = token['userinfo']
+    try:
+        token = google.authorize_access_token()
+        user_info = token.get('userinfo')
+        
+        if not user_info:
+            return redirect('/?error=google_auth_failed')
+        
+        email = user_info.get('email')
+        name = user_info.get('name')
+        
+        if not email or not name:
+            return redirect('/?error=google_auth_failed')
+        
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        
+        # Check if user exists by email
+        cursor.execute("SELECT * FROM users WHERE name = ?", (email,))
+        user = cursor.fetchone()
+        
+        if not user:
+            # Create new user
+            user_id = str(uuid.uuid4())
+            cursor.execute(
+                "INSERT INTO users (id, name, password_hash, profile_photo, bio, theme) VALUES (?, ?, ?, ?, ?, ?)",
+                (user_id, email, generate_password_hash("google_login"), user_info.get('picture'), "Google OAuth User", 'purple')
+            )
+            conn.commit()
+            print(f"Created new Google OAuth user: {email}")
+        else:
+            user_id = user['id']
+            print(f"Existing Google OAuth user logged in: {email}")
+        
+        # Store user in session
+        session['user_id'] = user_id
+        session['user_name'] = email
+        session.permanent = True
+        
+        conn.close()
+        
+        # Redirect to frontend homepage
+        return redirect('/')
+        
+    except Exception as e:
+        print(f"Google OAuth callback error: {str(e)}")
+        return redirect('/?error=google_auth_failed')
 
-    email = user_info['email']
-    name = user_info['name']
-
+@app.route('/api/me', methods=['GET'])
+def get_current_user_session():
+    """Returns the currently logged-in user from session."""
+    user_id = session.get('user_id')
+    
+    if not user_id:
+        return jsonify({"loggedIn": False}), 200
+    
     conn = get_db_connection()
     cursor = conn.cursor()
+    
+    try:
+        cursor.execute("SELECT * FROM users WHERE id = ?", (user_id,))
+        user = cursor.fetchone()
+        
+        if not user:
+            session.clear()
+            return jsonify({"loggedIn": False}), 200
+        
+        # Prepare user profile for frontend
+        user_profile_dict = dict(user)
+        user_profile_dict['skills_offered'] = user_profile_dict['skills_offered'].split(',') if user_profile_dict['skills_offered'] else []
+        user_profile_dict['skills_wanted'] = user_profile_dict['skills_wanted'].split(',') if user_profile_dict['skills_wanted'] else []
+        user_profile_dict['availability'] = user_profile_dict['availability'].split(',') if user_profile_dict['availability'] else []
+        user_profile_dict['is_public'] = bool(user_profile_dict['is_public'])
+        user_profile_dict['is_admin'] = bool(user_profile_dict['is_admin'])
+        user_profile_dict['is_banned'] = bool(user_profile_dict['is_banned'])
+        
+        return jsonify({
+            "loggedIn": True,
+            "userId": user_id,
+            "userProfile": user_profile_dict
+        }), 200
+        
+    except sqlite3.Error as e:
+        print(f"Database error fetching current user: {str(e)}")
+        return jsonify({"loggedIn": False, "error": str(e)}), 500
+    finally:
+        conn.close()
 
-    cursor.execute("SELECT * FROM users WHERE name = ?", (email,))
-    user = cursor.fetchone()
-
-    if not user:
-        user_id = str(uuid.uuid4())
-        cursor.execute(
-            "INSERT INTO users (id, name, password_hash) VALUES (?, ?, ?)",
-            (user_id, email, generate_password_hash("google_login"))
-        )
-        conn.commit()
-
-    conn.close()
-    return redirect('/')
+@app.route('/api/auth/logout', methods=['POST'])
+def logout_user():
+    """Logs out the current user by clearing the session."""
+    session.clear()
+    return jsonify({"message": "Logged out successfully"}), 200
 
 if __name__ == '__main__':
     # This will re-initialize the DB every time the script is run directly.

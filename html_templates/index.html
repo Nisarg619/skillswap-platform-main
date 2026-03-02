@@ -335,14 +335,33 @@
 
         /* General button styles for the new design */
         .btn-primary {
-            @apply px-6 py-3 rounded-full font-semibold text-white transition-all duration-300 ease-in-out transform hover:scale-105 hover:shadow-lg;
+            padding: 0.75rem 1.5rem;
+            border-radius: 9999px;
+            font-weight: 600;
+            color: white;
+            transition: all 0.3s duration;
+            transition-timing-function: ease-in-out;
+        }
+        .btn-primary:hover {
+            transform: scale(1.05);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
         }
         .btn-secondary {
-            @apply px-6 py-3 rounded-full font-semibold transition-all duration-300 ease-in-out transform hover:scale-105 hover:shadow-lg;
+            padding: 0.75rem 1.5rem;
+            border-radius: 9999px;
+            font-weight: 600;
+            transition: all 0.3s duration;
+            transition-timing-function: ease-in-out;
+        }
+        .btn-secondary:hover {
+            transform: scale(1.05);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
         }
         .input-field {
             /* Existing styles */
-            @apply p-3 border shadow-sm; /* Removed w-full from here */
+            padding: 0.75rem;
+            border: 1px solid #d1d5db;
+            box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
             /* New styles for full curve and visual centering */
             border-radius: 9999px; /* Force full curve (pill shape) */
             max-width: 300px; /* Limit width to make it visually centered */
@@ -350,15 +369,14 @@
             margin-right: auto; /* Center horizontally */
             text-align: center;
             /* New styles for animation and better look */
-            @apply transition-all duration-200 ease-in-out;
+            transition: all 0.2s duration;
+            transition-timing-function: ease-in-out;
             /* Focus state */
-            @apply focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent;
-            /* Add a subtle shadow on focus */
-            box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05); /* Default shadow */
+            outline: none;
         }
-
         .input-field:focus {
-            box-shadow: 0 0 0 3px rgba(var(--color-primary-500-rgb), 0.3), 0 1px 2px 0 rgba(0, 0, 0, 0.05); /* Custom focus shadow */
+            box-shadow: 0 0 0 3px rgba(var(--color-primary-500-rgb), 0.3), 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            border-color: transparent;
         }
         /* Define RGB values for primary colors for use in rgba() */
         .theme-indigo { --color-primary-500-rgb: 99, 102, 241; } /* #6366f1 */
@@ -502,25 +520,55 @@
 
         /* Skill Tag Styling */
         .skill-tag {
-            @apply inline-flex items-center rounded-full px-3 py-1 text-sm font-medium bg-gray-700 text-gray-200 mr-2 mb-2 transition-colors duration-200;
+            display: inline-flex;
+            align-items: center;
+            border-radius: 9999px;
+            padding: 0.25rem 0.75rem;
+            font-size: 0.875rem;
+            font-weight: 600;
+            background-color: #374151;
+            color: #e5e7eb;
+            margin-right: 0.5rem;
+            margin-bottom: 0.5rem;
+            transition: color 0.2s duration, background-color 0.2s duration;
         }
         .skill-tag:hover {
-            @apply bg-gray-600;
+            background-color: #4b5563;
         }
         .availability-tag {
-            @apply inline-flex items-center rounded-full px-3 py-1 text-xs font-medium bg-gray-700 text-gray-300 mr-2 mb-2 transition-colors duration-200;
+            display: inline-flex;
+            align-items: center;
+            border-radius: 9999px;
+            padding: 0.25rem 0.75rem;
+            font-size: 0.75rem;
+            font-weight: 600;
+            background-color: #374151;
+            color: #d1d5db;
+            margin-right: 0.5rem;
+            margin-bottom: 0.5rem;
+            transition: color 0.2s duration, background-color 0.2s duration;
         }
         .availability-tag:hover {
-            @apply bg-gray-600;
+            background-color: #4b5563;
         }
 
         /* Header Navigation Link Styling */
         .nav-link {
-            @apply px-3 py-2 rounded-xl text-sm font-medium text-gray-300 hover:bg-gray-700 hover:text-white transition-colors duration-200;
+            padding: 0.5rem 0.75rem;
+            border-radius: 0.75rem;
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: #9ca3af;
+            transition: color 0.2s duration, background-color 0.2s duration;
             position: relative; /* Needed for the underline */
         }
+        .nav-link:hover {
+            background-color: #374151;
+            color: white;
+        }
         .nav-link.active {
-            @apply bg-primary-700 text-primary-200;
+            background-color: #4f46e5;
+            color: #c7d2fe;
         }
         /* Underline for active navigation link */
         .nav-link.active::after {
@@ -538,10 +586,18 @@
 
         /* Platform Announcement Banner */
         .platform-announcement {
-            @apply relative z-10 bg-secondary-900 border-l-4 border-secondary-500 text-secondary-200 p-4 mt-4 mx-auto max-w-4xl rounded-md shadow-sm;
-            color: #e0e7ff; /* Light blue for better visibility on dark secondary background */
-            background-color: #1f2937; /* Darker gray for the banner background */
-            border-color: #6366f1; /* Indigo-500 for the border */
+            position: relative;
+            z-index: 10;
+            background-color: #1f2937;
+            border-left: 4px solid #6366f1;
+            color: #e0e7ff;
+            padding: 1rem;
+            margin-top: 1rem;
+            margin-left: auto;
+            margin-right: auto;
+            max-width: 56rem;
+            border-radius: 0.375rem;
+            box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
         }
         .platform-announcement .font-bold {
             color: #93c5fd; /* Lighter blue for the bold text */
@@ -588,8 +644,12 @@
     <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
 
     <script type="text/babel">
-        // Define the base URL for API calls
-        const BASE_URL = 'http://127.0.0.1:5000';
+        // Dynamic BASE_URL - uses current origin in production, localhost in development
+        const BASE_URL = window.location.origin !== 'null' && window.location.origin !== '' 
+            ? window.location.origin  // Use current origin (works on Render)
+            : 'http://127.0.0.1:5000'; // Fallback for local development
+
+        console.log('Using BASE_URL:', BASE_URL);
 
         // Define themes in JavaScript to be accessible by the frontend logic
         const themes = {
@@ -641,11 +701,28 @@
             const [userProfile, setUserProfile] = useState(null);
             const [isAuthReady, setIsAuthReady] = useState(false); // To track if initial auth check is done
 
-            // Function to fetch user profile
+            // Store tokens in localStorage (in production, consider httpOnly cookies or secure storage)
+            const getAccessToken = () => localStorage.getItem('accessToken');
+            const getRefreshToken = () => localStorage.getItem('refreshToken');
+            const setTokens = (accessToken, refreshToken) => {
+                localStorage.setItem('accessToken', accessToken);
+                localStorage.setItem('refreshToken', refreshToken);
+            };
+            const clearTokens = () => {
+                localStorage.removeItem('accessToken');
+                localStorage.removeItem('refreshToken');
+            };
+
+            // Function to fetch user profile with JWT authentication
             const fetchUserProfile = useCallback(async (id) => {
                 if (!id) return null;
                 try {
-                    const response = await fetch(`${BASE_URL}/api/profile/${id}`);
+                    const token = getAccessToken();
+                    const response = await fetch(`${BASE_URL}/api/profile/${id}`, {
+                        headers: {
+                            'Authorization': `Bearer ${token}`
+                        }
+                    });
                     if (response.ok) {
                         const data = await response.json();
                         return data;
@@ -660,28 +737,115 @@
                 }
             }, []);
 
-            // Initial auth check on component mount
+            // Token refresh function
+            const refreshAccessToken = useCallback(async () => {
+                const refreshToken = getRefreshToken();
+                if (!refreshToken) return false;
+
+                try {
+                    const response = await fetch(`${BASE_URL}/api/auth/refresh`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ refreshToken })
+                    });
+
+                    if (response.ok) {
+                        const data = await response.json();
+                        setTokens(data.accessToken, data.refreshToken);
+                        return true;
+                    } else {
+                        console.error('Failed to refresh token');
+                        clearTokens();
+                        return false;
+                    }
+                } catch (error) {
+                    console.error('Error refreshing token:', error);
+                    clearTokens();
+                    return false;
+                }
+            }, []);
+
+            // Initial auth check on component mount - CHECKS JWT TOKEN FIRST
             useEffect(() => {
                 const checkAuth = async () => {
-                    const storedUserId = localStorage.getItem('skillSwapUserId');
-                    if (storedUserId) {
-                        const profile = await fetchUserProfile(storedUserId);
-                        if (profile) {
-                            setCurrentUser({ uid: storedUserId });
-                            setUserId(storedUserId);
-                            setUserProfile(profile);
-                        } else {
-                            // If profile fetch fails, clear stored ID
-                            localStorage.removeItem('skillSwapUserId');
-                            setUserId(null);
-                            setCurrentUser(null);
-                            setUserProfile(null);
+                    try {
+                        const accessToken = getAccessToken();
+                        
+                        if (accessToken) {
+                            // Try to fetch user with current access token
+                            try {
+                                const sessionResponse = await fetch(`${BASE_URL}/api/auth/user`, {
+                                    headers: {
+                                        'Authorization': `Bearer ${accessToken}`
+                                    }
+                                });
+                                
+                                if (sessionResponse.ok) {
+                                    const sessionData = await sessionResponse.json();
+                                    
+                                    if (sessionData.loggedIn && sessionData.userId) {
+                                        // User is logged in with valid token
+                                        localStorage.setItem('skillSwapUserId', sessionData.userId);
+                                        setCurrentUser({ uid: sessionData.userId });
+                                        setUserId(sessionData.userId);
+                                        setUserProfile(sessionData.userProfile);
+                                        setIsAuthReady(true);
+                                        return;
+                                    }
+                                } else if (sessionResponse.status === 401) {
+                                    // Token expired, try to refresh
+                                    const refreshed = await refreshAccessToken();
+                                    if (refreshed) {
+                                        // Retry with new token
+                                        const newToken = getAccessToken();
+                                        const retryResponse = await fetch(`${BASE_URL}/api/auth/user`, {
+                                            headers: {
+                                                'Authorization': `Bearer ${newToken}`
+                                            }
+                                        });
+                                        
+                                        if (retryResponse.ok) {
+                                            const retryData = await retryResponse.json();
+                                            if (retryData.loggedIn && retryData.userId) {
+                                                localStorage.setItem('skillSwapUserId', retryData.userId);
+                                                setCurrentUser({ uid: retryData.userId });
+                                                setUserId(retryData.userId);
+                                                setUserProfile(retryData.userProfile);
+                                                setIsAuthReady(true);
+                                                return;
+                                            }
+                                        }
+                                    }
+                                }
+                            } catch (error) {
+                                console.error('Error checking authentication:', error);
+                            }
                         }
+                        
+                        // If no token or token invalid, check localStorage fallback
+                        const storedUserId = localStorage.getItem('skillSwapUserId');
+                        if (storedUserId) {
+                            const profile = await fetchUserProfile(storedUserId);
+                            if (profile) {
+                                setCurrentUser({ uid: storedUserId });
+                                setUserId(storedUserId);
+                                setUserProfile(profile);
+                            } else {
+                                // If profile fetch fails, clear stored ID
+                                localStorage.removeItem('skillSwapUserId');
+                                setUserId(null);
+                                setCurrentUser(null);
+                                setUserProfile(null);
+                            }
+                        }
+                        setIsAuthReady(true); // Mark auth check as complete
+                    } catch (error) {
+                        console.error("Error checking authentication:", error);
+                        setIsAuthReady(true); // Still mark as ready even on error
                     }
-                    setIsAuthReady(true); // Mark auth check as complete
                 };
                 checkAuth();
-            }, [fetchUserProfile]);
+            }, [fetchUserProfile, refreshAccessToken]);
 
             // Function to handle user login
             const login = useCallback(async (name, password) => {
@@ -693,6 +857,9 @@
                     });
                     const data = await response.json();
                     if (response.ok) {
+                        // Store JWT tokens
+                        localStorage.setItem('accessToken', data.accessToken);
+                        localStorage.setItem('refreshToken', data.refreshToken);
                         localStorage.setItem('skillSwapUserId', data.userId);
                         setCurrentUser({ uid: data.userId });
                         setUserId(data.userId);
@@ -717,6 +884,9 @@
                     });
                     const data = await response.json();
                     if (response.ok) {
+                        // Store JWT tokens
+                        localStorage.setItem('accessToken', data.accessToken);
+                        localStorage.setItem('refreshToken', data.refreshToken);
                         localStorage.setItem('skillSwapUserId', data.userId);
                         setCurrentUser({ uid: data.userId });
                         setUserId(data.userId);
@@ -733,11 +903,13 @@
 
             // Function to handle user logout
             const logout = useCallback(() => {
+                // JWT is stateless, so only client-side cleanup needed
+                localStorage.removeItem('accessToken');
+                localStorage.removeItem('refreshToken');
                 localStorage.removeItem('skillSwapUserId');
                 setCurrentUser(null);
                 setUserId(null);
                 setUserProfile(null);
-                // No need to call backend for logout in this stateless token-based approach
             }, []);
 
             // Re-fetch user profile if userId changes (e.g., after login/signup)
@@ -1079,9 +1251,28 @@
                                     <button
                                         type="button"
                                         onClick={() => window.location.href = "https://skillswap-platform-main.onrender.com/login/google"}
-                                        className="w-full bg-white text-gray-700 font-semibold py-3 rounded-lg shadow hover:bg-gray-100 transition"
+                                        className="
+                                            w-full 
+                                            py-3 
+                                            rounded-full 
+                                            font-semibold 
+                                            text-white
+                                            bg-gradient-to-r from-purple-500 via-purple-600 to-indigo-600
+                                            hover:from-purple-600 hover:via-purple-700 hover:to-indigo-700
+                                            shadow-lg 
+                                            hover:shadow-purple-500/40
+                                            transform 
+                                            hover:scale-[1.02]
+                                            transition-all 
+                                            duration-300
+                                            flex 
+                                            items-center 
+                                            justify-center 
+                                            gap-2
+                                        "
                                     >
-                                        🔵 Sign in with Google
+                                        <span className="text-lg">🔵</span>
+                                        Continue with Google
                                     </button>
                                 </div>
                             </form>
@@ -3352,11 +3543,35 @@
         };
 
         // Render the Root component
-        const Root = () => (
-            <AuthProvider>
-                <App />
-            </AuthProvider>
-        );
+        const Root = () => {
+            // Handle Google OAuth callback with JWT tokens in URL
+            React.useEffect(() => {
+                const urlParams = new URLSearchParams(window.location.search);
+                const tokensParam = urlParams.get('tokens');
+                
+                if (tokensParam) {
+                    // Extract tokens from URL
+                    const [accessToken, refreshToken] = tokensParam.split('|');
+                    
+                    if (accessToken && refreshToken) {
+                        // Store tokens in localStorage
+                        localStorage.setItem('accessToken', accessToken);
+                        localStorage.setItem('refreshToken', refreshToken);
+                        
+                        // Clean URL (remove tokens parameter)
+                        window.history.replaceState({}, document.title, window.location.pathname);
+                        
+                        console.log('Google OAuth tokens stored successfully');
+                    }
+                }
+            }, []);
+            
+            return (
+                <AuthProvider>
+                    <App />
+                </AuthProvider>
+            );
+        };
 
         ReactDOM.render(<Root />, document.getElementById('root'));
     </script>
