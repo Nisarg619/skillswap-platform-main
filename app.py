@@ -111,7 +111,7 @@ def init_db():
 
     # Add a default admin user if one doesn't already exist
     admin_username = "Admin User"
-    admin_password = "Adminpass" # In a real application, this should be an environment variable or more securely managed
+    admin_password = os.environ.get("ADMIN_PASSWORD")
 
     cursor.execute("SELECT id FROM users WHERE name = ?", (admin_username,))
     existing_admin = cursor.fetchone()
